@@ -41,7 +41,10 @@ printf \
   "The following packages are going to be installed:\n%s\n" \
   "${missing_packages[*]}"
 
-sudo apt install -y "${missing_packages[@]}"
+if ! sudo apt install -y "${missing_packages[@]}"; then
+  printf "Couldn't install some packages. Exiting.\n"
+  exit 1
+fi
 
 # Run all scripts in programs/
 for f in programs/*.sh; do bash "$f" -H; done
