@@ -6,37 +6,42 @@
 # Update Ubuntu and get standard repository programs
 sudo apt update && sudo apt full-upgrade -y
 
-function install {
-  which $1 &> /dev/null
+wanted_packages=(
+  # Basics
+  awscli
+  chrome-gnome-shell
+  curl
+  exfat-utils
+  file
+  git
+  htop
+  jq
+  yq
+  nmap
+  openvpn
+  tree
+  vim
+  wget
 
-  if [ $? -ne 0 ]; then
-    echo "Installing: ${1}..."
-    sudo apt install -y $1
-  else
-    echo "Already installed: ${1}"
+  # Image processing
+  gimp
+  jpegoptim
+  optipng
+)
+
+missing_packages=()
+
+for package in "${wanted_packages[@]}"; do
+  if ! which "$package" &> /dev/null; then
+    missing_packages+=("$package")
   fi
-}
+done
 
-# Basics
-install awscli
-install chrome-gnome-shell
-install curl
-install exfat-utils
-install file
-install git
-install htop
-install jq
-install yq
-install nmap
-install openvpn
-install tree
-install vim
-install wget
+printf \
+  "The following packages are going to be installed:\n%s\n" \
+  "${missing_packages[*]}"
 
-# Image processing
-install gimp
-install jpegoptim
-install optipng
+sudo apt install -y "${missing_packages[@]}"
 
 # Run all scripts in programs/
 for f in programs/*.sh; do bash "$f" -H; done
